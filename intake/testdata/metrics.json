@@ -1,0 +1,13 @@
+{
+  "series": [
+    {
+      "metric": "system.cpu.system",
+      "points": [[1612906502, 3.0419201600117516]],
+      "tags": [],
+      "host": "MacLastic2.local",
+      "type": "gauge",
+      "interval": 0,
+      "source_type_name": "System"
+    }
+  ]
+}

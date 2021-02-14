@@ -1,0 +1,66 @@
+[
+  {
+    "check": "datadog.agent.check_status",
+    "host_name": "MacLastic2.local",
+    "timestamp": 1612613793,
+    "status": 0,
+    "message": "",
+    "tags": ["check:uptime"]
+  },
+  {
+    "check": "datadog.agent.check_status",
+    "host_name": "MacLastic2.local",
+    "timestamp": 1612613794,
+    "status": 0,
+    "message": "",
+    "tags": ["check:memory"]
+  },
+  {
+    "check": "datadog.agent.check_status",
+    "host_name": "MacLastic2.local",
+    "timestamp": 1612613795,
+    "status": 0,
+    "message": "",
+    "tags": ["check:io"]
+  },
+  {
+    "check": "datadog.agent.check_status",
+    "host_name": "MacLastic2.local",
+    "timestamp": 1612613796,
+    "status": 0,
+    "message": "",
+    "tags": ["check:cpu"]
+  },
+  {
+    "check": "datadog.agent.check_status",
+    "host_name": "MacLastic2.local",
+    "timestamp": 1612613801,
+    "status": 0,
+    "message": "",
+    "tags": ["check:network"]
+  },
+  {
+    "check": "datadog.agent.check_status",
+    "host_name": "MacLastic2.local",
+    "timestamp": 1612613802,
+    "status": 0,
+    "message": "",
+    "tags": ["check:load"]
+  },
+  {
+    "check": "datadog.agent.check_status",
+    "host_name": "MacLastic2.local",
+    "timestamp": 1612613803,
+    "status": 0,
+    "message": "",
+    "tags": ["check:disk"]
+  },
+  {
+    "check": "datadog.agent.up",
+    "host_name": "MacLastic2.local",
+    "timestamp": 1612613807,
+    "status": 0,
+    "message": "",
+    "tags": null
+  }
+]
