@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,21 +10,35 @@ import (
 	"time"
 
 	"github.com/masci/threadle/intake"
+	"github.com/masci/threadle/plugins"
+	"github.com/spf13/viper"
 
 	// output plugins
 	"github.com/masci/threadle/plugins/elasticsearch"
 )
 
 func main() {
+	// bootstrap config
+	initConfig()
+
+	plugins := map[string]plugins.Plugin{
+		"logger":        &elasticsearch.Plugin{},
+		"elasticsearch": &elasticsearch.Plugin{},
+	}
+
 	// Initialize the intake
 	intake.Init()
 	// Configure the output plugins
-	// logger.Init(intake.MsgBroker)
-	elasticsearch.Init(intake.MsgBroker)
+	for k := range viper.GetStringMap("plugins") {
+		if p, found := plugins[k]; found {
+			log.Println("Initializing plugin", k)
+			p.Init(intake.MsgBroker)
+		}
+	}
 
 	// Start the HTTP server
 	srv := &http.Server{
-		Addr: "0.0.0.0:8080",
+		Addr: fmt.Sprintf("0.0.0.0:%s", viper.GetString("port")),
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
@@ -57,4 +72,16 @@ func main() {
 	// to finalize based on context cancellation.
 	log.Println("shutting down")
 	os.Exit(0)
+}
+
+func initConfig() {
+	viper.SetDefault("port", "8080")
+
+	viper.SetConfigName("threadle.yaml")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Fatalf("Fatal error: %s", err)
+	}
 }

@@ -11,6 +11,7 @@ type V1Metric struct {
 	Points         []Point
 	Tags           []string
 	Host           string
+	Device         string
 	Type           string
 	Interval       int
 	SourceTypeName string `json:"source_type_name"`
