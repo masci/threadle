@@ -11,14 +11,16 @@ import (
 	"github.com/masci/threadle/intake"
 
 	// output plugins
-	"github.com/masci/threadle/plugins/logger"
+	"github.com/masci/threadle/plugins/elasticsearch"
 )
 
 func main() {
 	// Initialize the intake
 	intake.Init()
 	// Configure the output plugins
-	logger.Init(intake.MsgBroker)
+	// logger.Init(intake.MsgBroker)
+	elasticsearch.Init(intake.MsgBroker)
+
 	// Start the HTTP server
 	srv := &http.Server{
 		Addr: "0.0.0.0:8080",
