@@ -37,8 +37,8 @@ type labels map[string]string
 // Plugin implements plugins.Plugin
 type Plugin struct{}
 
-// Init subscribes to and processes the messages for the supported topics
-func (*Plugin) Init(b *intake.PubSub) {
+// Start subscribes to and processes the messages for the supported topics
+func (*Plugin) Start(b *intake.PubSub) {
 	// Create the Elasticsearch client
 	var err error
 	if es, err = elasticsearch.NewClient(elasticsearch.Config{

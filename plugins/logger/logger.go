@@ -8,8 +8,11 @@ import (
 
 var broker *intake.PubSub
 
-// Init subscribes and processes the messages for the supported topics
-func Init(b *intake.PubSub) {
+// Plugin implements plugins.Plugin
+type Plugin struct{}
+
+// Start subscribes and processes the messages for the supported topics
+func (*Plugin) Start(b *intake.PubSub) {
 	broker = b
 	// log all the /api/v1/* endpoints
 	for _, ep := range intake.GetV1Endpoints() {
