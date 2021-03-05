@@ -1,8 +1,9 @@
 port: 8080
 
 plugins:
-  - elasticsearch
+  elasticsearch:
     cloudid: "foobarbaz=="
     username: "myuser"
     password: "mypass"
     index: "my-index"
+  logger:
