@@ -50,11 +50,11 @@ func (*Plugin) Start(b *intake.PubSub) {
 		log.Fatalf("Error creating elasticsearch client: %s", err)
 	}
 
-	// Configure filters
+	// Configure exclusion filters
 	exclude := filters{
-		regexp.MustCompile(`system\..`),         // system.*
-		regexp.MustCompile(`datadog\.agent\..`), // datadog.agent.*
+		regexp.MustCompile(`.+\.datadog\..+`), // datadog.*
 	}
+
 	// Subcsribe to metrics messages
 	go func() {
 		var metrics []intake.V1Metric
@@ -138,18 +138,22 @@ func process(metrics []intake.V1Metric, exclude filters) {
 	log.Println("flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
 }
 
-// filterV1Metrics ignore metrics according to one or more exclusion filters
+// filterV1Metrics drops metrics according to one or more exclusion filters for their name
 func filterV1Metrics(metrics []intake.V1Metric, exclude filters) []intake.V1Metric {
-	out := []intake.V1Metric{}
+	// filter in-place
+	n := 0
 	for _, m := range metrics {
-		// drop excluded metrics
+		keep := true
 		for _, reg := range exclude {
 			if reg.MatchString(m.Metric) {
-				continue
+				keep = false
+				break
 			}
 		}
-
-		out = append(out, m)
+		if keep {
+			metrics[n] = m
+			n++
+		}
 	}
-	return out
+	return metrics[:n]
 }
