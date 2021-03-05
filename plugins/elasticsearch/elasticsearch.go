@@ -12,15 +12,13 @@ import (
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esutil"
 	"github.com/masci/threadle/intake"
+	"github.com/masci/threadle/plugins"
 	"github.com/spf13/viper"
 )
 
 var (
 	es *elasticsearch.Client
 )
-
-// exclusion filters
-type filters []*regexp.Regexp
 
 // ES document
 type document map[string]interface{}
@@ -51,7 +49,7 @@ func (*Plugin) Start(b *intake.PubSub) {
 	}
 
 	// Configure exclusion filters
-	exclude := filters{
+	exclude := plugins.Filters{
 		regexp.MustCompile(`.+\.datadog\..+`), // datadog.*
 	}
 
@@ -73,7 +71,7 @@ func (*Plugin) Start(b *intake.PubSub) {
 
 // process reads all the metrics, build the corresponding ES documents and sends them
 // using the _bulk api
-func process(metrics []intake.V1Metric, exclude filters) {
+func process(metrics []intake.V1Metric, exclude plugins.Filters) {
 	indexer, err := esutil.NewBulkIndexer(esutil.BulkIndexerConfig{
 		Index:  viper.GetString("plugins.elasticsearch.index"),
 		Client: es,
@@ -82,7 +80,7 @@ func process(metrics []intake.V1Metric, exclude filters) {
 		log.Printf("Error creating the indexer: %s", err)
 	}
 
-	for _, m := range filterV1Metrics(metrics, exclude) {
+	for _, m := range plugins.ExcludeV1Metrics(metrics, exclude) {
 		d := document{}
 		d["@timestamp"] = time.Unix(int64(m.Points[0][0]), 0).Format(time.RFC3339)
 		d[m.Metric] = m.Points[0][1]
@@ -136,24 +134,4 @@ func process(metrics []intake.V1Metric, exclude filters) {
 	}
 
 	log.Println("flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
-}
-
-// filterV1Metrics drops metrics according to one or more exclusion filters for their name
-func filterV1Metrics(metrics []intake.V1Metric, exclude filters) []intake.V1Metric {
-	// filter in-place
-	n := 0
-	for _, m := range metrics {
-		keep := true
-		for _, reg := range exclude {
-			if reg.MatchString(m.Metric) {
-				keep = false
-				break
-			}
-		}
-		if keep {
-			metrics[n] = m
-			n++
-		}
-	}
-	return metrics[:n]
 }
