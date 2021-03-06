@@ -6,4 +6,8 @@ plugins:
     username: "myuser"
     password: "mypass"
     index: "my-index"
+    exclude_metrics:
+      - .+\.datadog\..+
+
   logger:
+    ecs_compatible: true
