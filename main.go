@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/masci/threadle/intake"
@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	// bootstrap config, this has to be called first
+	// Bootstrap config, this has to be called first
 	initConfig()
 
 	// Define the available output plugins
@@ -26,7 +26,7 @@ func main() {
 	// Load the configured output plugins
 	for k := range viper.GetStringMap("plugins") {
 		if p, found := plugins[k]; found {
-			log.Println("Initializing plugin", k)
+			fmt.Println("Initializing plugin:", k)
 			p.Start(intake.MsgBroker)
 		}
 	}
@@ -44,6 +44,6 @@ func initConfig() {
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Fatalf("Fatal error: %s", err)
+		panic(fmt.Errorf("Fatal error: %s", err))
 	}
 }
