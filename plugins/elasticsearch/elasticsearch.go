@@ -48,27 +48,25 @@ func (*Plugin) Start(b *intake.PubSub) {
 	}
 
 	// Configure exclusion filters
-	exclude := plugins.GetFilters([]string{`.+\.datadog\..+`})
+	exclude := plugins.GetFilters(viper.GetStringSlice("plugins.elasticsearch.exclude_metrics"))
 
 	// Subcsribe to metrics messages
 	go func() {
-		var metrics []intake.V1Metric
-		var err error
 		for msg := range b.Subscribe(intake.SeriesEndpointV1) {
-			metrics, err = intake.DecodeV1Metrics([]byte(msg))
+			metrics, err := intake.DecodeV1Metrics([]byte(msg))
 			if err != nil {
 				log.Println("error processing metrics: ", err)
 				continue
 			}
-
-			process(metrics, exclude)
+			processV1Metrics(metrics, exclude)
 		}
 	}()
 }
 
-// process reads all the metrics, build the corresponding ES documents and sends them
+// processV1Metrics reads all the metrics, build the corresponding ES documents and stores them
 // using the _bulk api
-func process(metrics []intake.V1Metric, exclude plugins.Filters) {
+func processV1Metrics(metrics []intake.V1Metric, exclude plugins.Filters) {
+	// Create the ES bulk indexer
 	indexer, err := esutil.NewBulkIndexer(esutil.BulkIndexerConfig{
 		Index:  viper.GetString("plugins.elasticsearch.index"),
 		Client: es,
@@ -77,39 +75,10 @@ func process(metrics []intake.V1Metric, exclude plugins.Filters) {
 		log.Printf("Error creating the indexer: %s", err)
 	}
 
+	// Convert all the metrics and add them to the indexer
 	for _, m := range plugins.ExcludeV1Metrics(metrics, exclude) {
-		d := document{}
-		d["@timestamp"] = time.Unix(int64(m.Points[0][0]), 0).Format(time.RFC3339)
-		d[m.Metric] = m.Points[0][1]
-		if len(m.Tags) > 0 {
-			labels := labels{}
-			for _, t := range m.Tags {
-				toks := strings.Split(t, ":")
-				if len(toks) < 2 {
-					toks = append(toks, "")
-				}
-				labels[toks[0]] = toks[1]
-			}
-			d["labels"] = labels
-		}
-		d["host"] = host{
-			Name:     m.Host,
-			Hostname: m.Host,
-		}
-		if m.Interval > 0 {
-			d["interval"] = m.Interval
-		}
-		if m.Device != "" {
-			d["device"] = m.Device
-		}
-		d["type"] = m.Type
-		if m.SourceTypeName != "" {
-			d["source_type_name"] = m.SourceTypeName
-		}
-
-		var jsonData []byte
-		var err error
-		if jsonData, err = json.Marshal(d); err != nil {
+		jsonData, err := json.Marshal(getV1MetricDocument(&m))
+		if err != nil {
 			log.Println(err)
 			continue
 		}
@@ -131,4 +100,38 @@ func process(metrics []intake.V1Metric, exclude plugins.Filters) {
 	}
 
 	log.Println("flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
+}
+
+// getV1MetricDocument converts a Datadog metric into an ECS compatible document
+func getV1MetricDocument(m *intake.V1Metric) *document {
+	d := document{}
+	d["@timestamp"] = time.Unix(int64(m.Points[0][0]), 0).Format(time.RFC3339)
+	d[m.Metric] = m.Points[0][1]
+	if len(m.Tags) > 0 {
+		labels := labels{}
+		for _, t := range m.Tags {
+			toks := strings.Split(t, ":")
+			if len(toks) < 2 {
+				toks = append(toks, "")
+			}
+			labels[toks[0]] = toks[1]
+		}
+		d["labels"] = labels
+	}
+	d["host"] = host{
+		Name:     m.Host,
+		Hostname: m.Host,
+	}
+	if m.Interval > 0 {
+		d["interval"] = m.Interval
+	}
+	if m.Device != "" {
+		d["device"] = m.Device
+	}
+	d["type"] = m.Type
+	if m.SourceTypeName != "" {
+		d["source_type_name"] = m.SourceTypeName
+	}
+
+	return &d
 }
