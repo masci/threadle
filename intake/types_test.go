@@ -43,7 +43,7 @@ func TestGetV1Metrics(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error loading golden file: %s", err)
 		}
-		got, err := GetV1Metrics(content)
+		got, err := DecodeV1Metrics(content)
 		require.Nil(t, err)
 		require.Equal(t, len(testcase.metrics), len(got))
 		require.Equal(t, testcase.metrics, got)

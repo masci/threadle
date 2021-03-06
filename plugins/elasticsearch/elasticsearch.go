@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -49,16 +48,14 @@ func (*Plugin) Start(b *intake.PubSub) {
 	}
 
 	// Configure exclusion filters
-	exclude := plugins.Filters{
-		regexp.MustCompile(`.+\.datadog\..+`), // datadog.*
-	}
+	exclude := plugins.GetFilters([]string{`.+\.datadog\..+`})
 
 	// Subcsribe to metrics messages
 	go func() {
 		var metrics []intake.V1Metric
 		var err error
 		for msg := range b.Subscribe(intake.SeriesEndpointV1) {
-			metrics, err = intake.GetV1Metrics([]byte(msg))
+			metrics, err = intake.DecodeV1Metrics([]byte(msg))
 			if err != nil {
 				log.Println("error processing metrics: ", err)
 				continue

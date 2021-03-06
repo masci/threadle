@@ -21,8 +21,8 @@ type series struct {
 	Series []V1Metric `json:"series"`
 }
 
-// GetV1Metrics decodes a payload and returns a slice of Metric
-func GetV1Metrics(payload []byte) ([]V1Metric, error) {
+// DecodeV1Metrics decodes a payload and returns a slice of Metric
+func DecodeV1Metrics(payload []byte) ([]V1Metric, error) {
 	s := series{[]V1Metric{}}
 
 	return s.Series, json.Unmarshal(payload, &s)
