@@ -8,6 +8,7 @@ require (
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/kr/pretty v0.2.0 // indirect
+	github.com/rs/zerolog v1.20.0
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
