@@ -49,3 +49,42 @@ func TestGetV1Metrics(t *testing.T) {
 		require.Equal(t, testcase.metrics, got)
 	}
 }
+
+func TestDecodeHostMeta(t *testing.T) {
+	testcases := []struct {
+		name   string
+		meta   HostMeta
+		golden string
+	}{
+		{
+			name:   "Decode payload",
+			golden: "intake",
+		},
+	}
+
+	for _, testcase := range testcases {
+		content, err := ioutil.ReadFile("testdata/" + testcase.golden + ".json")
+		if err != nil {
+			t.Fatalf("Error loading golden file: %s", err)
+		}
+
+		_, err = DecodeHostMeta(content)
+		// We don't do any logic there, let's just test unmarshalling works
+		require.Nil(t, err)
+	}
+}
+
+func TestGetProcessSnapshots(t *testing.T) {
+	content, err := ioutil.ReadFile("testdata/intake.json")
+	if err != nil {
+		t.Fatalf("Error loading golden file: %s", err)
+	}
+	hostMeta, err := DecodeHostMeta(content)
+
+	snapshots := hostMeta.GetProcessSnapshots()
+	require.Len(t, snapshots, 1)
+
+	processes := snapshots[0].ProcessList
+	require.Len(t, processes, 20)
+	require.Equal(t, "Google", processes[0].Name)
+}

@@ -103,7 +103,7 @@ func Serve() {
 	// Start the HTTP server
 	srv := &http.Server{
 		Addr: fmt.Sprintf("0.0.0.0:%s", viper.GetString("port")),
-		// Good practice to set timeouts to avoid Slowloris attacks.
+		// Set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
@@ -131,8 +131,5 @@ func Serve() {
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
 	srv.Shutdown(ctx)
-	// Optionally, you could run srv.Shutdown in a goroutine and block on
-	// <-ctx.Done() if your application should wait for other services
-	// to finalize based on context cancellation.
 	log.Println("shutting down")
 }

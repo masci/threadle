@@ -1,0 +1,214 @@
+{
+  "apiKey": "1234567890",
+  "agentVersion": "7.25.1",
+  "uuid": "64f23d6d-4c30-3fc4-b7c2-9ee0bba0d29a",
+  "internalHostname": "MacLastic2.local",
+  "os": "darwin",
+  "agent-flavor": "agent",
+  "python": "3.8.5 (default, Jan 26 2021, 18:36:50) [Clang 11.0.3 (clang-1103.0.32.62)]",
+  "systemStats": {
+    "cpuCores": 4,
+    "machine": "amd64",
+    "platform": "darwin",
+    "pythonV": "3.8.5",
+    "processor": "Intel(R) Core(TM) i7-1068NG7 CPU @ 2.30GHz",
+    "macV": ["10.15.7", ["", "", ""], "amd64"],
+    "nixV": [null, null, null],
+    "fbsdV": [null, null, null],
+    "winV": [null, null, null]
+  },
+  "meta": {
+    "socket-hostname": "MacLastic2.local",
+    "timezones": ["CET"],
+    "socket-fqdn": "MacLastic2.local",
+    "ec2-hostname": "",
+    "hostname": "MacLastic2.local",
+    "host_aliases": [],
+    "instance-id": ""
+  },
+  "host-tags": {},
+  "network": null,
+  "logs": { "transport": "" },
+  "install-method": {
+    "tool": "install_script",
+    "tool_version": "install_script_mac",
+    "installer_version": "install_script_mac-1.0.0"
+  },
+  "resources": {
+    "processes": {
+      "snaps": [
+        [
+          1614966031,
+          [
+            [
+              "massi",
+              0,
+              28.127431869506836,
+              1708438736896,
+              9664512000,
+              "Google",
+              43
+            ],
+            [
+              "massi",
+              0,
+              2.3366689682006836,
+              7997235200,
+              802873344,
+              "zoom.us",
+              1
+            ],
+            ["massi", 0, 2.124631404876709, 32291311616, 730017792, "Slack", 3],
+            [
+              "massi",
+              0,
+              1.803433895111084,
+              76894363648,
+              619655168,
+              "Visual",
+              7
+            ],
+            [
+              "massi",
+              0,
+              1.48162841796875,
+              22936092672,
+              509083648,
+              "Spotify",
+              3
+            ],
+            ["massi", 0, 1.3417840003967285, 5615501312, 461033472, "gopls", 1],
+            [
+              "massi",
+              0,
+              0.9747028350830078,
+              38419128320,
+              334905344,
+              "Backup",
+              7
+            ],
+            [
+              "root",
+              0,
+              0.9362101554870605,
+              11279532032,
+              321679360,
+              "mds_stores",
+              1
+            ],
+            [
+              "root",
+              0,
+              0.8741378784179688,
+              5966348288,
+              300351488,
+              "esensor",
+              1
+            ],
+            [
+              "_windowserver,massi,root",
+              0,
+              0.8208513259887695,
+              184047501312,
+              282042368,
+              "MTLCompilerService",
+              33
+            ],
+            [
+              "massi",
+              0,
+              0.8192300796508789,
+              6695542784,
+              281485312,
+              "Terminal",
+              1
+            ],
+            [
+              "massi",
+              0,
+              0.8006811141967773,
+              41680519168,
+              275111936,
+              "Obsidian",
+              4
+            ],
+            [
+              "_softwareupdate",
+              0,
+              0.5292057991027832,
+              5939257344,
+              181833728,
+              "Software",
+              1
+            ],
+            [
+              "massi",
+              0,
+              0.46573877334594727,
+              35944849408,
+              160026624,
+              "VTDecoderXPCService",
+              7
+            ],
+            [
+              "root",
+              0,
+              0.38793087005615234,
+              11336765440,
+              133292032,
+              "WindowServer",
+              1
+            ],
+            [
+              "massi",
+              0,
+              0.38167238235473633,
+              10812751872,
+              131141632,
+              "Electron",
+              1
+            ],
+            [
+              "massi",
+              0,
+              0.3802657127380371,
+              12407726080,
+              130658304,
+              "com.apple.appkit.xpc.openAndSavePanelService",
+              2
+            ],
+            [
+              "massi",
+              0,
+              0.3608226776123047,
+              6562213888,
+              123977728,
+              "Preview",
+              1
+            ],
+            [
+              "massi",
+              0,
+              0.33974647521972656,
+              6318325760,
+              116736000,
+              "Finder",
+              1
+            ],
+            [
+              "massi",
+              0,
+              0.2939939498901367,
+              15640129536,
+              101015552,
+              "mdworker_shared",
+              3
+            ]
+          ]
+        ]
+      ]
+    },
+    "meta": { "host": "MacLastic2.local" }
+  },
+  "gohai": "{\"cpu\":{\"cpu_cores\":\"4\",\"cpu_logical_processors\":\"8\",\"family\":\"6\",\"mhz\":\"2300\",\"model\":\"126\",\"model_name\":\"Intel(R) Core(TM) i7-1068NG7 CPU @ 2.30GHz\",\"stepping\":\"5\",\"vendor_id\":\"GenuineIntel\"},\"filesystem\":[{\"kb_size\":\"976797816\",\"mounted_on\":\"/\",\"name\":\"/dev/disk1s1\"},{\"kb_size\":\"976797816\",\"mounted_on\":\"/System/Volumes/Data\",\"name\":\"/dev/disk1s2\"},{\"kb_size\":\"976797816\",\"mounted_on\":\"/private/var/vm\",\"name\":\"/dev/disk1s5\"},{\"kb_size\":\"976797816\",\"mounted_on\":\"/Volumes/Recovery\",\"name\":\"/dev/disk1s4\"},{\"kb_size\":\"245846\",\"mounted_on\":\"/Volumes/Google Chrome Beta\",\"name\":\"/dev/disk2s2\"}],\"memory\":{\"swap_total\":\"3072.00M\",\"total\":\"34359738368\"},\"network\":{\"interfaces\":[{\"ipv6\":\"fe80::aede:48ff:fe00:1122\",\"ipv6-network\":\"fe80::/64\",\"macaddress\":\"ac:de:48:00:11:22\",\"name\":\"en5\"},{\"ipv4\":\"192.168.1.51\",\"ipv4-network\":\"192.168.1.0/24\",\"ipv6\":\"fe80::62:1032:1380:3275\",\"ipv6-network\":\"fe80::/64\",\"macaddress\":\"90:9c:4a:bf:da:98\",\"name\":\"en0\"},{\"ipv6\":\"fe80::14bb:80ff:fe20:8b9e\",\"ipv6-network\":\"fe80::/64\",\"macaddress\":\"16:bb:80:20:8b:9e\",\"name\":\"awdl0\"},{\"ipv6\":\"fe80::14bb:80ff:fe20:8b9e\",\"ipv6-network\":\"fe80::/64\",\"macaddress\":\"16:bb:80:20:8b:9e\",\"name\":\"llw0\"},{\"ipv6\":\"fe80::bf06:5f8f:7b91:a352\",\"ipv6-network\":\"fe80::/64\",\"name\":\"utun0\"},{\"ipv6\":\"fe80::3b2:cb57:bf84:cb8b\",\"ipv6-network\":\"fe80::/64\",\"name\":\"utun1\"}],\"ipaddress\":\"192.168.1.51\",\"ipaddressv6\":\"fe80::aede:48ff:fe00:1122\",\"macaddress\":\"90:9c:4a:bf:da:98\"},\"platform\":{\"GOOARCH\":\"amd64\",\"GOOS\":\"darwin\",\"goV\":\"1.14.12\",\"hostname\":\"MacLastic2.local\",\"kernel_name\":\"Darwin\",\"kernel_release\":\"19.6.0\",\"kernel_version\":\"Darwin Kernel Version 19.6.0: Tue Jan 12 22:13:05 PST 2021; root:xnu-6153.141.16~1/RELEASE_X86_64\",\"machine\":\"x86_64\",\"os\":\"Darwin\",\"processor\":\"i386\",\"pythonV\":\"2.7.16\"}}"
+}
