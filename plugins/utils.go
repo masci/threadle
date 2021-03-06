@@ -28,3 +28,13 @@ func ExcludeV1Metrics(metrics []intake.V1Metric, exclude Filters) []intake.V1Met
 	}
 	return metrics[:n]
 }
+
+// GetFilters populate a Filters object from a slice of regex strings
+func GetFilters(regexList []string) Filters {
+	f := Filters{}
+	for _, r := range regexList {
+		f = append(f, regexp.MustCompile(r))
+	}
+
+	return f
+}
