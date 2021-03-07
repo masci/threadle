@@ -47,7 +47,7 @@ func (*Plugin) Start(b *intake.PubSub) {
 		log.Fatalf("Error creating elasticsearch client: %s", err)
 	}
 
-	// Configure exclusion filters
+	// Configure exclusion filters for metrics
 	exclude := plugins.GetFilters(viper.GetStringSlice("plugins.elasticsearch.exclude_metrics"))
 
 	// Subcsribe to metrics messages
@@ -59,6 +59,19 @@ func (*Plugin) Start(b *intake.PubSub) {
 				continue
 			}
 			processV1Metrics(metrics, exclude)
+		}
+	}()
+
+	// Subscribe to process messages
+	go func() {
+		for msg := range b.Subscribe(intake.IntakeEndpointV1) {
+			log.Println(msg)
+			// metrics, err := intake.DecodeV1Metrics([]byte(msg))
+			// if err != nil {
+			// 	log.Println("error processing metrics: ", err)
+			// 	continue
+			// }
+			// processV1Metrics(metrics, exclude)
 		}
 	}()
 }
@@ -134,4 +147,8 @@ func getV1MetricDocument(m *intake.V1Metric) *document {
 	}
 
 	return &d
+}
+
+func getSystemDocument() {
+
 }
