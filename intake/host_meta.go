@@ -1,27 +1,6 @@
 package intake
 
-import (
-	"encoding/json"
-)
-
-// Point is an alias for an array of floats
-type Point []float64
-
-// V1Metric represents a datapoint series
-type V1Metric struct {
-	Metric         string
-	Points         []Point
-	Tags           []string
-	Host           string
-	Device         string
-	Type           string
-	Interval       int
-	SourceTypeName string `json:"source_type_name"`
-}
-
-type series struct {
-	Series []V1Metric `json:"series"`
-}
+import "encoding/json"
 
 // HostMeta represents a metadata payload
 type HostMeta struct {
@@ -57,8 +36,9 @@ type HostMeta struct {
 		GoogleCloudPlatform []string `json:"google cloud platform,omitempty"`
 	} `json:"host-tags"`
 	Network struct {
-		ID         string `json:"network-id"`
-		PublicIPv4 string `json:"public-ipv4,omitempty"`
+		IP   string `json:"ipaddress"`
+		IPV6 string `json:"ipaddressv6"`
+		Mac  string `json:"macaddress"`
 	}
 	Logs      struct{ Transport string }
 	Resources struct {
@@ -66,24 +46,6 @@ type HostMeta struct {
 			Snaps []interface{}
 		}
 	}
-}
-
-// GetProcessSnapshots extracts the list of processes from the metadata payload
-func (hm *HostMeta) GetProcessSnapshots() []*ProcessSnapshot {
-	ret := []*ProcessSnapshot{}
-	for _, rawSnap := range hm.Resources.Processes.Snaps {
-		s := NewProcessSnapshot(rawSnap)
-		ret = append(ret, s)
-	}
-
-	return ret
-}
-
-// DecodeV1Metrics decodes a payload and returns a slice of Metric
-func DecodeV1Metrics(payload []byte) ([]V1Metric, error) {
-	s := series{[]V1Metric{}}
-
-	return s.Series, json.Unmarshal(payload, &s)
 }
 
 // DecodeHostMeta decodes a HostMeta payload

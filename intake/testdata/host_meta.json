@@ -27,7 +27,27 @@
     "instance-id": ""
   },
   "host-tags": {},
-  "network": null,
+  "network": {
+    "interfaces": [
+      {
+        "ipv6": "fe80::aede:48ff:fe00:1122",
+        "ipv6-network": "fe80::/64",
+        "macaddress": "ac:de:48:00:11:22",
+        "name": "en5"
+      },
+      {
+        "ipv4": "192.168.1.51",
+        "ipv4-network": "192.168.1.0/24",
+        "ipv6": "fe80::62:1032:1380:3275",
+        "ipv6-network": "fe80::/64",
+        "macaddress": "90:9c:4a:bf:da:98",
+        "name": "en0"
+      }
+    ],
+    "ipaddress": "192.168.1.51",
+    "ipaddressv6": "fe80::aede:48ff:fe00:1122",
+    "macaddress": "90:9c:4a:bf:da:98"
+  },
   "logs": { "transport": "" },
   "install-method": {
     "tool": "install_script",

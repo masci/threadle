@@ -50,3 +50,14 @@ func newProcess(data []interface{}) *Process {
 		data[6].(float64),
 	}
 }
+
+// GetProcessSnapshots extracts the list of processes from the metadata payload
+func (hm *HostMeta) GetProcessSnapshots() []*ProcessSnapshot {
+	ret := []*ProcessSnapshot{}
+	for _, rawSnap := range hm.Resources.Processes.Snaps {
+		s := NewProcessSnapshot(rawSnap)
+		ret = append(ret, s)
+	}
+
+	return ret
+}
