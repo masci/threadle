@@ -5,8 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"strings"
-	"time"
 
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esutil"
@@ -24,8 +22,12 @@ type document map[string]interface{}
 
 // ECS compatible host field to be added to each document
 type host struct {
-	Name     string `json:"name"`
-	Hostname string `json:"hostname"`
+	Name         string
+	Hostname     string
+	ID           string
+	Architecture string
+	Mac          string
+	IP           string
 }
 
 // ECS compatible labels field, we'll use it to store Datadog tags
@@ -62,16 +64,15 @@ func (*Plugin) Start(b *intake.PubSub) {
 		}
 	}()
 
-	// Subscribe to process messages
+	// Subscribe to host metadata messages
 	go func() {
 		for msg := range b.Subscribe(intake.IntakeEndpointV1) {
-			log.Println(msg)
-			// metrics, err := intake.DecodeV1Metrics([]byte(msg))
-			// if err != nil {
-			// 	log.Println("error processing metrics: ", err)
-			// 	continue
-			// }
-			// processV1Metrics(metrics, exclude)
+			hostMeta, err := intake.DecodeHostMeta([]byte(msg))
+			if err != nil {
+				log.Println("error processing host metadata: ", err)
+				continue
+			}
+			processHostMeta(hostMeta)
 		}
 	}()
 }
@@ -115,40 +116,36 @@ func processV1Metrics(metrics []intake.V1Metric, exclude plugins.Filters) {
 	log.Println("flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
 }
 
-// getV1MetricDocument converts a Datadog metric into an ECS compatible document
-func getV1MetricDocument(m *intake.V1Metric) *document {
-	d := document{}
-	d["@timestamp"] = time.Unix(int64(m.Points[0][0]), 0).Format(time.RFC3339)
-	d[m.Metric] = m.Points[0][1]
-	if len(m.Tags) > 0 {
-		labels := labels{}
-		for _, t := range m.Tags {
-			toks := strings.Split(t, ":")
-			if len(toks) < 2 {
-				toks = append(toks, "")
+func processHostMeta(hm *intake.HostMeta) {
+	// Create the ES bulk indexer
+	indexer, err := esutil.NewBulkIndexer(esutil.BulkIndexerConfig{
+		Index:  viper.GetString("plugins.elasticsearch.index"),
+		Client: es,
+	})
+	if err != nil {
+		log.Printf("Error creating the indexer: %s", err)
+	}
+
+	// Build the metadata document and add it to the bulk indexer
+	if err = addDocument(indexer, getHostMetadataDocument(hm)); err != nil {
+		log.Printf("Error adding host meta to the indexer: %s", err)
+	}
+
+	// Go through all the snapshosts
+	for _, snap := range hm.GetProcessSnapshots() {
+		// Get the list of running processes
+		for _, doc := range getProcDocuments(snap) {
+			if err = addDocument(indexer, doc); err != nil {
+				log.Printf("Error adding snap to the indexer: %s", err)
+				continue
 			}
-			labels[toks[0]] = toks[1]
 		}
-		d["labels"] = labels
-	}
-	d["host"] = host{
-		Name:     m.Host,
-		Hostname: m.Host,
-	}
-	if m.Interval > 0 {
-		d["interval"] = m.Interval
-	}
-	if m.Device != "" {
-		d["device"] = m.Device
-	}
-	d["type"] = m.Type
-	if m.SourceTypeName != "" {
-		d["source_type_name"] = m.SourceTypeName
 	}
 
-	return &d
-}
+	// Flush data
+	if err := indexer.Close(context.Background()); err != nil {
+		log.Fatalf("Unexpected error: %s", err)
+	}
 
-func getSystemDocument() {
-
+	log.Println("meta flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
 }
