@@ -7,7 +7,7 @@ plugins:
     password: "mypass"
     index: "my-index"
     exclude_metrics:
-      - .+\.datadog\..+
+      - .*datadog.*
 
   logger:
     ecs_compatible: true
