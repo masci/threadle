@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"strings"
 	"time"
 
+	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"github.com/elastic/go-elasticsearch/v7/esutil"
 	"github.com/masci/threadle/intake"
 )
@@ -98,4 +101,55 @@ func getProcDocuments(snap *intake.ProcessSnapshot) []*document {
 		docs = append(docs, &d)
 	}
 	return docs
+}
+
+func setupIndex(es *elasticsearch.Client, indexName string) (created bool, err error) {
+	var r *esapi.Response
+
+	// check index exists
+	r, err = es.Indices.Exists([]string{indexName})
+	if err != nil {
+		return
+	}
+	defer r.Body.Close()
+
+	// if it doesn't, create the index and setup the mapping
+	if r.StatusCode == 404 {
+		r, err = es.Indices.Create(
+			indexName,
+			// map any number to float because we don't know in advance
+			// what data the Datadog Agent will send. Probably we can
+			// do better than this but I needed something quick.
+			es.Indices.Create.WithBody(strings.NewReader(`{
+				"mappings": {
+					"dynamic_templates": [
+					  {
+						"integers": {
+						  "match_mapping_type": "long",
+						  "mapping": {
+							"type": "double"
+						  }
+						}
+					  }
+					]
+				}
+			}`)),
+		)
+		if err != nil {
+			return
+		}
+		if r.IsError() {
+			err = fmt.Errorf("Cannot create index: %s", r)
+			return
+		}
+		r.Body.Close()
+		created = true
+		return
+	} else if r.IsError() {
+		err = fmt.Errorf("response error querying the index: %s", r)
+		return
+	}
+
+	// nothing to do
+	return
 }

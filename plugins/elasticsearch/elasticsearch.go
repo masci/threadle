@@ -49,6 +49,16 @@ func (*Plugin) Start(b *intake.PubSub) {
 		log.Fatalf("Error creating elasticsearch client: %s", err)
 	}
 
+	// Create the index if needed
+	indexName := viper.GetString("plugins.elasticsearch.index")
+	created, err := setupIndex(es, indexName)
+	if err != nil {
+		log.Fatalf("Unexpected error setting up the index '%s': %s", indexName, err)
+	}
+	if created {
+		log.Println("Index created:", indexName)
+	}
+
 	// Configure exclusion filters for metrics
 	exclude := plugins.GetFilters(viper.GetStringSlice("plugins.elasticsearch.exclude_metrics"))
 
