@@ -20,6 +20,7 @@ func main() {
 	help := pflag.BoolP("help", "h", false, "print args help")
 	pflag.Parse()
 
+	// Print the help message and exit if --help is passed
 	if *help == true {
 		pflag.PrintDefaults()
 		os.Exit(0)
