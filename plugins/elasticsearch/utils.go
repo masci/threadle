@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -97,7 +96,6 @@ func getProcDocuments(snap *intake.ProcessSnapshot) []*document {
 		d := document{}
 		d["@timestamp"] = ts
 		d["process"] = p
-		log.Printf("%+v\n", d)
 		docs = append(docs, &d)
 	}
 	return docs

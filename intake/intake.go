@@ -3,13 +3,13 @@ package intake
 import (
 	"context"
 	fmt "fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/masci/threadle/output"
 	"github.com/spf13/viper"
 )
 
@@ -58,14 +58,14 @@ func init() {
 }
 
 func defaultHandler(rw http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL)
+	output.DEBUG.Printf("Unhandled path requested: %s", r.URL)
 }
 
 // This handler serves the /intake/ endpoint
 func intakeHandler(rw http.ResponseWriter, r *http.Request) {
 	body, err := readRequestBody(r)
 	if err != nil {
-		log.Println("intakeHandler: error reading request body:", err)
+		output.ERROR.Println("intakeHandler: error reading request body:", err)
 		http.Error(rw, "", http.StatusBadRequest)
 		return
 	}
@@ -78,7 +78,7 @@ func intakeHandler(rw http.ResponseWriter, r *http.Request) {
 func v1Handler(rw http.ResponseWriter, r *http.Request) {
 	body, err := readRequestBody(r)
 	if err != nil {
-		log.Println("v1Handler: error reading request body:", err)
+		output.ERROR.Println("v1Handler: error reading request body:", err)
 		http.Error(rw, "", http.StatusBadRequest)
 		return
 	}
@@ -113,7 +113,7 @@ func Serve() {
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			log.Println(err)
+			output.FATAL.Println(err)
 		}
 	}()
 
@@ -131,5 +131,5 @@ func Serve() {
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
 	srv.Shutdown(ctx)
-	log.Println("shutting down")
+	output.INFO.Println("shutting down")
 }

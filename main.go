@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/masci/threadle/intake"
+	"github.com/masci/threadle/output"
 	"github.com/masci/threadle/plugins"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	// output plugins
@@ -14,6 +15,19 @@ import (
 )
 
 func main() {
+	// Define and parse command args
+	verbosity := pflag.IntP("verbose", "v", 1, "set verbosity level: 0 silent, 1 normal, 2 debug")
+	help := pflag.BoolP("help", "h", false, "print args help")
+	pflag.Parse()
+
+	if *help == true {
+		pflag.PrintDefaults()
+		os.Exit(0)
+	}
+
+	// Configure cmdline output facilities
+	output.Init(*verbosity)
+
 	// Bootstrap config, this has to be called first
 	initConfig()
 
@@ -26,7 +40,7 @@ func main() {
 	// Load the configured output plugins
 	for k := range viper.GetStringMap("plugins") {
 		if p, found := plugins[k]; found {
-			fmt.Println("Initializing plugin:", k)
+			output.INFO.Println("Initializing plugin:", k)
 			p.Start(intake.MsgBroker)
 		}
 	}
@@ -44,6 +58,7 @@ func initConfig() {
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Fatal error: %s", err))
+		output.FATAL.Fatalf("Fatal error: %s", err)
 	}
+	output.DEBUG.Println("Config file found at", viper.ConfigFileUsed())
 }

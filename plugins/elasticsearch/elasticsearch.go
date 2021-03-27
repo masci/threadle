@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"log"
 
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esutil"
 	"github.com/masci/threadle/intake"
+	"github.com/masci/threadle/output"
 	"github.com/masci/threadle/plugins"
 	"github.com/spf13/viper"
 )
@@ -46,18 +46,20 @@ func (*Plugin) Start(b *intake.PubSub) {
 		Username: viper.GetString("plugins.elasticsearch.username"),
 		Password: viper.GetString("plugins.elasticsearch.password"),
 	}); err != nil {
-		log.Fatalf("Error creating elasticsearch client: %s", err)
+		output.FATAL.Fatalf("Error creating elasticsearch client: %s", err)
 	}
 
 	// Create the index if needed
 	indexName := viper.GetString("plugins.elasticsearch.index")
 	created, err := setupIndex(es, indexName)
 	if err != nil {
-		log.Fatalf("Unexpected error setting up the index '%s': %s", indexName, err)
+		output.FATAL.Fatalf("Unexpected error setting up the index '%s': %s", indexName, err)
 	}
 	if created {
-		log.Println("Index created:", indexName)
+		output.INFO.Println("Index created:", indexName)
 	}
+
+	output.INFO.Println("Sending data to index:", indexName)
 
 	// Configure exclusion filters for metrics
 	exclude := plugins.GetFilters(viper.GetStringSlice("plugins.elasticsearch.exclude_metrics"))
@@ -67,7 +69,7 @@ func (*Plugin) Start(b *intake.PubSub) {
 		for msg := range b.Subscribe(intake.SeriesEndpointV1) {
 			metrics, err := intake.DecodeV1Metrics([]byte(msg))
 			if err != nil {
-				log.Println("error processing metrics: ", err)
+				output.ERROR.Println("error processing metrics: ", err)
 				continue
 			}
 			processV1Metrics(metrics, exclude)
@@ -79,7 +81,7 @@ func (*Plugin) Start(b *intake.PubSub) {
 		for msg := range b.Subscribe(intake.IntakeEndpointV1) {
 			hostMeta, err := intake.DecodeHostMeta([]byte(msg))
 			if err != nil {
-				log.Println("error processing host metadata: ", err)
+				output.ERROR.Println("error processing host metadata: ", err)
 				continue
 			}
 			processHostMeta(hostMeta)
@@ -96,14 +98,14 @@ func processV1Metrics(metrics []intake.V1Metric, exclude plugins.Filters) {
 		Client: es,
 	})
 	if err != nil {
-		log.Printf("Error creating the indexer: %s", err)
+		output.ERROR.Printf("Error creating the indexer: %s", err)
 	}
 
 	// Convert all the metrics and add them to the indexer
 	for _, m := range plugins.ExcludeV1Metrics(metrics, exclude) {
 		jsonData, err := json.Marshal(getV1MetricDocument(&m))
 		if err != nil {
-			log.Println(err)
+			output.ERROR.Println(err)
 			continue
 		}
 
@@ -115,15 +117,15 @@ func processV1Metrics(metrics []intake.V1Metric, exclude plugins.Filters) {
 			},
 		)
 		if err != nil {
-			log.Printf("Unexpected error: %s", err)
+			output.ERROR.Printf("Unexpected error: %s", err)
 		}
 	}
 
 	if err := indexer.Close(context.Background()); err != nil {
-		log.Fatalf("Unexpected error: %s", err)
+		output.FATAL.Fatalf("Unexpected error: %s", err)
 	}
 
-	log.Println("flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
+	output.DEBUG.Println("flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
 }
 
 func processHostMeta(hm *intake.HostMeta) {
@@ -133,12 +135,12 @@ func processHostMeta(hm *intake.HostMeta) {
 		Client: es,
 	})
 	if err != nil {
-		log.Printf("Error creating the indexer: %s", err)
+		output.ERROR.Printf("Error creating the indexer: %s", err)
 	}
 
 	// Build the metadata document and add it to the bulk indexer
 	if err = addDocument(indexer, getHostMetadataDocument(hm)); err != nil {
-		log.Printf("Error adding host meta to the indexer: %s", err)
+		output.ERROR.Printf("Error adding host meta to the indexer: %s", err)
 	}
 
 	// Go through all the snapshosts
@@ -146,7 +148,7 @@ func processHostMeta(hm *intake.HostMeta) {
 		// Get the list of running processes
 		for _, doc := range getProcDocuments(snap) {
 			if err = addDocument(indexer, doc); err != nil {
-				log.Printf("Error adding snap to the indexer: %s", err)
+				output.ERROR.Printf("Error adding snap to the indexer: %s", err)
 				continue
 			}
 		}
@@ -154,8 +156,8 @@ func processHostMeta(hm *intake.HostMeta) {
 
 	// Flush data
 	if err := indexer.Close(context.Background()); err != nil {
-		log.Fatalf("Unexpected error: %s", err)
+		output.FATAL.Fatalf("Unexpected error: %s", err)
 	}
 
-	log.Println("meta flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
+	output.DEBUG.Println("meta flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
 }
