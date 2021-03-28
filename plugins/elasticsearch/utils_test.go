@@ -16,7 +16,7 @@ func TestGetV1MetricDocument(t *testing.T) {
 	metrics, _ := intake.DecodeV1Metrics(content)
 
 	expected := &document{
-		"@timestamp": "2021-02-09T22:35:02+01:00",
+		"@timestamp": "2021-02-09T21:35:02Z",
 		"host": host{
 			Name:     "MacLastic2.local",
 			Hostname: "MacLastic2.local",

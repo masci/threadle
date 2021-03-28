@@ -32,7 +32,7 @@ func addDocument(indexer esutil.BulkIndexer, d *document) error {
 // getV1MetricDocument converts a Datadog metric into an ECS compatible document
 func getV1MetricDocument(m *intake.V1Metric) *document {
 	d := document{}
-	d["@timestamp"] = time.Unix(int64(m.Points[0][0]), 0).Format(time.RFC3339)
+	d["@timestamp"] = time.Unix(int64(m.Points[0][0]), 0).UTC().Format(time.RFC3339)
 	d[m.Metric] = m.Points[0][1]
 	if len(m.Tags) > 0 {
 		labels := labels{}
