@@ -20,7 +20,7 @@ $ go get -u github.com/masci/threadle
 go: downloading github.com/masci/threadle
 ```
 
-By default Threadle discards all the messages coming from the Datadog Agent so you have to enable at
+Threadle discards all the messages coming from the Datadog Agent out of the box, so you have to enable at
 least one output plugin. Create a basic configuration file named `threadle.yaml`:
 
 ```yaml
@@ -33,6 +33,14 @@ Launch Threadle from the same directory containing the config file:
 ```bash
 $ $GOPATH/bin/threadle -c
 Initializing plugin: logger
+```
+
+Alternatively, you can use the Docker image to achieve the same:
+
+```bash
+$ docker run -e THREADLE_PLUGINS="{\"logger\":{}}" masci/threadle:unstable
+INFO Initializing plugin: logger
+INFO Threadle running at 0.0.0.0:3060
 ```
 
 By default Threadle listens on port `3060`, point the Datadog Agent there by adding the following to your
