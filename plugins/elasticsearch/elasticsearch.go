@@ -40,12 +40,8 @@ type Plugin struct{}
 func (*Plugin) Start(b *intake.PubSub) {
 	// Create the Elasticsearch client
 	var err error
-	if es, err = elasticsearch.NewClient(elasticsearch.Config{
-		// Auth
-		CloudID:  viper.GetString("plugins.elasticsearch.cloudid"),
-		Username: viper.GetString("plugins.elasticsearch.username"),
-		Password: viper.GetString("plugins.elasticsearch.password"),
-	}); err != nil {
+	cfg := getEsConfig()
+	if es, err = elasticsearch.NewClient(*cfg); err != nil {
 		output.FATAL.Fatalf("Error creating elasticsearch client: %s", err)
 	}
 
@@ -160,4 +156,22 @@ func processHostMeta(hm *intake.HostMeta) {
 	}
 
 	output.DEBUG.Println("meta flushed", indexer.Stats().NumFlushed, "created", indexer.Stats().NumCreated, "failed", indexer.Stats().NumFailed)
+}
+
+func getEsConfig() *elasticsearch.Config {
+	cfg := elasticsearch.Config{
+		Username: viper.GetString("plugins.elasticsearch.username"),
+		Password: viper.GetString("plugins.elasticsearch.password"),
+	}
+
+	// cloud id takes precedence over addresses
+	if cloudid := viper.GetString("plugins.elasticsearch.cloudid"); cloudid != "" {
+		cfg.CloudID = cloudid
+		output.DEBUG.Println("Using Cloud ID", cloudid)
+	} else {
+		cfg.Addresses = viper.GetStringSlice("plugins.elasticsearch.addresses")
+		output.DEBUG.Println("Using ES addresses", cfg.Addresses)
+	}
+
+	return &cfg
 }
