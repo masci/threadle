@@ -5,7 +5,8 @@
 
 Threadle can ingest metrics from a Datadog Agent and send them to a custom storage using different plugins.
 
-A use case example would be using Elasticsearch to store the timeseries and having Grafana visualize data.
+A use case example would be using [Elasticsearch](https://www.elastic.co/elasticsearch/) to store the
+timeseries and having [Grafana](https://grafana.com/oss/grafana/) visualize data.
 
 ![Datadog](img/datadog.png)
 ![Grafana](img/grafana.png)
@@ -62,3 +63,29 @@ logger:
 ```
 
 ### Elasticsearch
+
+The `elasticsearch` plugin transforms Datadog metric points into Elasticsearch documents that will be
+stored in a timeseries fashion, using the
+[Bulk API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html) to ingest data.
+
+The plugin accepts few config options:
+
+- `cloudid` to setup your ES cluster location if you're using [Elastic Cloud](https://elastic.co/cloud).
+- `addresses` can be used to specify the URL of the ES nodes to use when `cloudid` is not set
+- `username` and `password` to authenticate the client
+- `index` to specify which ES index to use to store data
+- `exclude_metrics` to ignore Datadog metrics using one or more regexps matching the metric name
+
+A fully functional example might be:
+
+```yaml
+plugins:
+  elasticsearch:
+    addresses:
+      - https://es.example.com:9243
+    username: "test"
+    password: "secret!"
+    index: "datadog-agent"
+    exclude_metrics:
+      - .*datadog.*
+```
