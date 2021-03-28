@@ -31,7 +31,7 @@ plugins:
 Launch Threadle from the same directory containing the config file:
 
 ```bash
-$ $GOPATH/bin/threadle -c
+$ $GOPATH/bin/threadle -c /path/to/threadle.yaml
 Initializing plugin: logger
 ```
 
