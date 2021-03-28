@@ -52,8 +52,14 @@ func main() {
 }
 
 func initConfig() {
+	// Defaults
 	viper.SetDefault("port", "3060")
 
+	// Automatically bind all the config options to env vars
+	viper.SetEnvPrefix("threadle")
+	viper.AutomaticEnv()
+
+	// Setup the config lookup
 	viper.SetConfigName("threadle.yaml")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
