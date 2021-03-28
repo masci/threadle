@@ -52,7 +52,7 @@ func main() {
 }
 
 func initConfig() {
-	viper.SetDefault("port", "8080")
+	viper.SetDefault("port", "3060")
 
 	viper.SetConfigName("threadle.yaml")
 	viper.SetConfigType("yaml")

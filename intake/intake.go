@@ -117,7 +117,7 @@ func Serve() {
 		}
 	}()
 
-	output.INFO.Println("Threadle is listening to", srv.Addr)
+	output.INFO.Println("Threadle running at", srv.Addr)
 
 	c := make(chan os.Signal, 1)
 	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)

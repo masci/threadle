@@ -25,7 +25,6 @@ least one output plugin. Create a basic configuration file named `threadle.yaml`
 ```yaml
 plugins:
   logger:
-    ecs_compatible: true
 ```
 
 Launch Threadle from the same directory containing the config file:
@@ -35,12 +34,12 @@ $ $GOPATH/bin/threadle -c
 Initializing plugin: logger
 ```
 
-By default Threadle listens on localhost at port 8080, point the Datadog Agent there by adding the
-following to your `datadog.yaml` configuration file:
+By default Threadle listens on port `3060`, point the Datadog Agent there by adding the following to your
+`datadog.yaml` configuration file:
 
 ```yaml
 additional_endpoints:
-  "http://localhost:8080": ""
+  "http://localhost:3060": ""
 ```
 
 Restart the Datadog Agent, you're all set.
